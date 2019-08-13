@@ -14,19 +14,19 @@ var db = firebase.database();
 
 //=====================================
 
-// db.ref().on("child_added", getDbData);
+db.ref().on("child_added", getDbData);
 
-$("submit-btn").on("click", addTrip);
+$("#submit-btn").on("click", addTrip);
 
 //=====================================
 
 function addTrip() {
 
   var newTrip = {
-    name: $("name-input").val().trim(),
-    destination: $("dest-input").val().trim,
-    time: $("time-input").val().trim,
-    frequency: $("rate-input").val().trim
+    name: $("#name-input").val().trim(),
+    destination: $("#dest-input").val().trim(),
+    time: $("#time-input").val().trim(),
+    frequency: $("#rate-input").val().trim()
   };
 
   if (
@@ -39,11 +39,36 @@ function addTrip() {
   } else{
     db.ref().push(newTrip);
 
-    $("name-imput").val("");
-    $("destination-imput").val("");
-    $("time-imput").val("");
-    $("frequency-imput").val("");
+    $("#name-input").val("");
+    $("#destination-input").val("");
+    $("#time-input").val("");
+    $("#frequency-input").val("");
 
     alert("Trip successfully added.");
   };
 };
+
+function getDbData(childSnapshot) {
+  
+  var name = childSnapshot.val().name;
+  var destination = childSnapshot.val().destination;
+  var time = childSnapshot.val().time;
+  var frequency = childSnapshot.val().frequency;
+
+  var diffTime = moment().diff(moment(time, "hh:mm"));
+  var timeRemainder = diffTime % frequency;
+  var minutesAway = frequency - timeRemainder;
+  // var minutesAway = moment(frequency - timeRemainder, "minutes").format("minutes");
+  console.log("frequency: ", frequency)
+  console.log("timeRemainder: ", timeRemainder)
+  var arrivalTime = moment().add(minutesAway, "minutes").format("hh:mm");
+
+  var tableRow = $("<tr>");
+  tableRow.append(`<td>${name}</td>`);
+  tableRow.append(`<td>${destination}</td>`);
+  tableRow.append(`<td>${frequency}</td>`);
+  tableRow.append(`<td>${arrivalTime}</td>`);
+  tableRow.append(`<td>${minutesAway}</td>`);
+
+  $("#trainInfo").append(tableRow);
+}
